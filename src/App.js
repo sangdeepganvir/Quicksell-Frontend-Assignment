@@ -24,16 +24,19 @@ function App() {
   const orderDataByValue = useCallback(async (cardsArry) => {
     if (orderValue === 'priority') {
       cardsArry.sort((a, b) => b.priority - a.priority);
-    } else if (orderValue === 'title') {
+    } 
+    else if (orderValue === 'title') {
       cardsArry.sort((a, b) => {
         const titleA = a.title.toLowerCase();
         const titleB = b.title.toLowerCase();
 
         if (titleA < titleB) {
           return -1;
-        } else if (titleA > titleB) {
+        } 
+        else if (titleA > titleB) {
           return 1;
-        } else {
+        } 
+        else {
           return 0;
         }
       });
@@ -52,34 +55,44 @@ function App() {
 
   useEffect(() => {
     saveStateToLocalStorage(groupValue);
-    
+
     async function fetchData() {
-      const response = await axios.get('https://api.quicksell.co/v1/internal/frontend-assignment');
-      await refactorData(response);
+        try{
+            const response = await axios.get('https://api.quicksell.co/v1/internal/frontend-assignment');
+            await refactorData(response);
+        }
+        catch (error) {
+            console.error("Error fetching data:", error);
+        }
     }
 
     fetchData();
 
     async function refactorData(response) {
-      let ticketArray = [];
-      if (response.status === 200) {
-        for (let i = 0; i < response.data.tickets.length; i++) {
-          for (let j = 0; j < response.data.users.length; j++) {
-            if (response.data.tickets[i].userId === response.data.users[j].id) {
-              let ticketJson = { ...response.data.tickets[i], userObj: response.data.users[j] };
-              ticketArray.push(ticketJson);
+        let ticketArray = [];
+        try {
+            if (response.status === 200) {
+                for (let i = 0; i < response.data.tickets.length; i++) {
+                    for (let j = 0; j < response.data.users.length; j++) {
+                        if (response.data.tickets[i].userId === response.data.users[j].id) {
+                            let ticketJson = { ...response.data.tickets[i], userObj: response.data.users[j] };
+                            ticketArray.push(ticketJson);
+                        }
+                    }
+                }
+                await setticketDetails(ticketArray);
+                orderDataByValue(ticketArray);
+
+                const users = response.data.users.map(user => user.name); 
+                setUserList(users); // Set the user list state
             }
-          }
+        } 
+        catch (error) {
+            console.error("Error refactoring data:", error);
         }
-        await setticketDetails(ticketArray);
-        orderDataByValue(ticketArray);
-        
-        // Create userList from API response
-        const users = response.data.users.map(user => user.name); 
-        setUserList(users); // Set the user list state
-      }
     }
   }, [orderDataByValue, groupValue]);
+
 
   function handleGroupValue(value) {
     setgroupValue(value);
