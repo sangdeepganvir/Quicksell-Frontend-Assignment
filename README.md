@@ -80,4 +80,4 @@ If you'd like to contribute to this project, please follow these guidelines:
 5. Open a pull request to the original repository, explaining the changes you made.
 
 ## License
-This Quiz website is licensed under the MIT License.
+This website is licensed under the MIT License.
